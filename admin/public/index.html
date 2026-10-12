@@ -1,0 +1,96 @@
+
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+    <title>Screen</title>
+
+    <style>
+
+        body {
+            margin: 0;
+            background: #111;
+            color: white;
+            font-family: Arial;
+        }
+
+        #status {
+            padding: 20px;
+        }
+        #screens {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .screen {
+            width: 80vw;
+            height: 80vh;
+            display: block;
+            margin: auto;
+            object-fit: contain;
+        }
+
+    </style>
+
+</head>
+
+<body>
+    <div id="status">Connecting...</div>
+
+    <div id="screens"></div>
+
+<script>
+
+const screens = document.getElementById("screens");
+
+const socket = new WebSocket(
+    "ws://192.168.1.45:8000/viewer"
+);
+
+const users = new Map();
+
+socket.onmessage = (event) => {
+
+    const message = JSON.parse(event.data);
+
+    if (message.type === "frame") {
+
+        let img = users.get(message.userId);
+
+        if (!img) {
+
+            const container = document.createElement("div");
+            const div = document.createElement("div")
+
+            const label = document.createElement("div");
+            label.textContent = `User ${message.userId}`;
+
+            img = document.createElement("img");
+
+            img.style.width = "75vw";
+            img.style.height = "75vh";
+            img.style.objectFit = "contain";
+
+            // container.appendChild(label);
+            div.append(label)
+            div.append(img)
+            container.appendChild(div);
+
+            screens.appendChild(container);
+
+            users.set(message.userId, img);
+        }
+
+        img.src = `data:image/jpeg;base64,${message.data}`;
+    }
+
+};
+
+</script>
+
+</body>
+
+</html>
+
