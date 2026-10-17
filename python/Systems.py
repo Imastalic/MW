@@ -19,6 +19,7 @@ for i in range(5):
 
 now = time.perf_counter()
 PORT = 8000
+IP = "192.168.1.139"
 
 
 
@@ -39,14 +40,14 @@ def on_json_text(event):
     }
     
     response = requests.post(
-        f"http://192.168.1.45:{PORT}/keys",
+        f"http://{IP}:{PORT}/keys",
         data
     )
 
     print(data)
 
-# SERVER = f"ws://192.168.1.45:{PORT}/screen"
-SERVER = f"ws://192.168.1.45:{PORT}/screen?id={id}"
+# SERVER = f"ws://{IP}:{PORT}/screen"
+SERVER = f"ws://{IP}:{PORT}/screen?id={id}"
 
 FPS = 20
 JPEG_QUALITY = 80

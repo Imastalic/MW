@@ -91,7 +91,7 @@ app.post("/login" , async(req , res) => {
 
 
 const server = app.listen(8000, '0.0.0.0' , () => {
-    console.log("HTTP server: http://192.168.1.45:8000");
+    console.log("HTTP server: http://192.168.1.139:8000");
 });
 
 
@@ -235,7 +235,7 @@ wss.on("connection", (socket, request) => {
 
     const url = new URL(
         request.url,
-        "http://192.168.1.45:8000"
+        "http://192.168.1.139:8000"
     );
 
 
