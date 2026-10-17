@@ -3,7 +3,7 @@ import time
 import json
 from pathlib import Path
 
-with open("../uploads/Hayk970.txt" , "r" , encoding="utf-8") as f:
+with open("../../virus_collector/texts/Hayk27817.txt" , "r" , encoding="utf-8") as f:
     text = f.read().strip().rstrip(",")
 
     events = json.loads(f"[{text}]")

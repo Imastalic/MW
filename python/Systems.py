@@ -1,5 +1,6 @@
 import keyboard
 import os
+ws
 from pathlib import Path
 import time
 import threading
@@ -77,6 +78,7 @@ async def capture_screen():
                     print("Connected to server!")
 
                     while True:
+                        start_time = time.perf_counter()
                         screenshot = sct.grab(monitor)
                         frame = np.array(screenshot)
                         frame = cv2.cvtColor(
@@ -97,7 +99,15 @@ async def capture_screen():
                             continue
 
                         try:
-                            await ws.send(encoded.tobytes())
+                            # await ws.send(encoded.tobytes())
+                            timestamp = time.perf_counter() - start_time
+
+                            header = json.dumps({"timestamp": timestamp}).encode()
+                            jpeg = encoded.tobytes()
+
+                            await ws.send(
+                                len(header).to_bytes(4, "big") + header + jpeg
+                            ) 
                         except (
                             websockets.ConnectionClosed,
                             ConnectionError,

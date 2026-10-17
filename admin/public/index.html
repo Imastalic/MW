@@ -1,69 +1,54 @@
-
-<!DOCTYPE html>
+<!doctype html>
 
 <html>
-
-<head>
-
+  <head>
     <title>Screen</title>
 
     <style>
+      body {
+        margin: 0;
+        background: #111;
+        color: white;
+        font-family: Arial;
+      }
 
-        body {
-            margin: 0;
-            background: #111;
-            color: white;
-            font-family: Arial;
-        }
+      #status {
+        padding: 20px;
+      }
+      #screens {
+        display: flex;
+        flex-wrap: wrap;
+      }
 
-        #status {
-            padding: 20px;
-        }
-        #screens {
-            display: flex;
-            flex-wrap: wrap;
-        }
-
-        .screen {
-            width: 80vw;
-            height: 80vh;
-            display: block;
-            margin: auto;
-            object-fit: contain;
-        }
-
+      .screen {
+        width: 80vw;
+        height: 80vh;
+        display: block;
+        margin: auto;
+        object-fit: contain;
+      }
     </style>
+  </head>
 
-</head>
-
-<body>
+  <body>
     <div id="status">Connecting...</div>
 
     <div id="screens"></div>
 
-<script>
+    <script>
+      const screens = document.getElementById("screens");
 
-const screens = document.getElementById("screens");
+      const socket = new WebSocket("ws://192.168.1.139:8000/viewer");
 
-const socket = new WebSocket(
-    "ws://192.168.1.139:8000/viewer"
-);
+      const users = new Map();
 
-const users = new Map();
-
-socket.onmessage = (event) => {
-
-    const message = JSON.parse(event.data);
-
-    if (message.type === "frame") {
-
-        let img = users.get(message.userId);
-
-        if (!img) {
-
+      socket.onmessage = (event) => {
+        const message = JSON.parse(event.data);
+        if (message.type === "frame") {
+          let img = users.get(message.userId);
+          if (!img) {
             const container = document.createElement("div");
-            const div = document.createElement("div")
-
+            const div = document.createElement("div");
             const label = document.createElement("div");
             label.textContent = `User ${message.userId}`;
 
@@ -74,23 +59,18 @@ socket.onmessage = (event) => {
             img.style.objectFit = "contain";
 
             // container.appendChild(label);
-            div.append(label)
-            div.append(img)
+            div.append(label);
+            div.append(img);
             container.appendChild(div);
 
             screens.appendChild(container);
 
             users.set(message.userId, img);
+          }
+
+          img.src = `data:image/jpeg;base64,${message.data}`;
         }
-
-        img.src = `data:image/jpeg;base64,${message.data}`;
-    }
-
-};
-
-</script>
-
-</body>
-
+      };
+    </script>
+  </body>
 </html>
-
