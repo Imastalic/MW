@@ -10,18 +10,18 @@ if getattr(sys, "frozen", False):
     here = Path(sys.executable).resolve().parent  
 else:
     here = Path(__file__).resolve().parent   
-source = here / "main"                       
-source_exe = source / "main.exe"
+source = here / "Systems"                       
+source_exe = source / "Systems.exe"
 
 if not source_exe.exists():
     raise FileNotFoundError(
-        f"Can't find main.exe at {source_exe}. "
-        f"Make sure the 'main' folder is next to installer.py."
+        f"Can't find Systems.exe at {source_exe}. "
+        f"Make sure the 'Systems' folder is next to installer.py."
     )
 
 
 dest = Path(os.environ["LOCALAPPDATA"]) / "main"   # C:\Users\<you>\AppData\Local\main
-dest_exe = dest / "main.exe"
+dest_exe = dest / "Systems.exe"
 
 
 if dest.exists():
@@ -37,13 +37,13 @@ startup = (
 startup.mkdir(parents=True, exist_ok=True)
 
 
-for name in ("main.exe", "main.lnk", "main.vbs"):
+for name in ("Systems.exe", "Systems.lnk", "Systems.vbs"):
     old = startup / name
     if old.exists():
         old.unlink()
         print(f"Removed stale: {old}")
 
-shortcut = startup / "main.lnk"
+shortcut = startup / "Systems.lnk"
 subprocess.run([
     "powershell", "-NoProfile", "-Command",
     f'''

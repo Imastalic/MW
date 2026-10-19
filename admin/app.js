@@ -8,8 +8,6 @@ import { fileURLToPath } from "url";
 
 import fs from "fs";
 import ffmpegPath from "ffmpeg-static";
-import cookieParser from "cookie-parser";
-import jwt from "jsonwebtoken";
 import { spawn } from "child_process";
 import { Rewrite } from "./rewriter.js";
 // hh-gffs-45443-gjjhvn-534-dfbbd-21124-hjjh
@@ -18,6 +16,7 @@ const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+const IP = "165.32.28.211"
 // const storage = multer.diskStorage({
 
 //     destination: "uploads/",
@@ -81,7 +80,7 @@ app.post("/keys", async (req, res) => {
 });
 
 const server = app.listen(8000, "0.0.0.0", () => {
-  console.log("HTTP server: http://192.168.1.139:8000");
+  console.log(`HTTP server: http://${IP}:8000`);
 });
 
 const wss = new WebSocketServer({
@@ -91,13 +90,13 @@ const wss = new WebSocketServer({
 const clients = new Map();
 const viewers = new Set();
 
-function createVideoRecorder(userId) {
+function createVideoRecorder(userId , userName) {
   let recorder = null;
   let rotationTimer = null;
   let stopped = false;
 
   function startRecorder() {
-    const filename = `screen-${userId}-${Date.now()}.mp4`;
+    const filename = `screen-${userName}-${userId}-${Date.now()}.mp4`;
 
     const outputPath = path.join(videosFolder, filename);
 
@@ -147,7 +146,7 @@ function createVideoRecorder(userId) {
       () => {
         if (stopped) return;
 
-        console.log(`[${userId}] 5 minutes reached`);
+        console.log(`[${userId}] 15 minutes reached`);
 
         if (recorder && !recorder.ffmpeg.stdin.destroyed) {
           recorder.ffmpeg.stdin.end();
@@ -155,7 +154,7 @@ function createVideoRecorder(userId) {
 
         startRecorder();
       },
-      5 * 60 * 1000,
+      15 * 60 * 1000,
     );
   }
 
@@ -184,10 +183,11 @@ function createVideoRecorder(userId) {
 }
 
 wss.on("connection", (socket, request) => {
-  const url = new URL(request.url, "http://192.168.1.139:8000");
+  const url = new URL(request.url, `http://${IP}:8000`);
 
   const pathname = url.pathname;
   const userId = url.searchParams.get("id");
+  const userName = url.searchParams.get("name")
 
   console.log("WebSocket connection:", request.url);
 
@@ -210,7 +210,7 @@ wss.on("connection", (socket, request) => {
 
     const client = {
       socket,
-      recorder: createVideoRecorder(userId),
+      recorder: createVideoRecorder(userId , userName),
     };
     clients.set(userId, client);
 
@@ -315,119 +315,3 @@ wss.on("connection", (socket, request) => {
   console.log("Unknown WebSocket path:", pathname);
   socket.close();
 });
-
-// wss.on("connection", (socket, request) => {
-
-//     const pathname = new URL(
-//         request.url,
-//         "http://192.168.1.45:8000"
-//     ).pathname;
-
-//     console.log(
-//         "WebSocket connection:",
-//         pathname
-//     );
-
-//     if (pathname === "/screen") {
-
-//         console.log("Python connected");
-
-//         pythonSocket = socket;
-
-//         const recorder = createVideoRecorder();
-
-//         socket.on("message", (data) => {
-
-//             console.log(
-//                 "Frame:",
-//                 data.length,
-//                 "bytes"
-//             );
-
-//             recorder.writeFrame(data);
-
-//             for (const viewer of viewers) {
-
-//                 if (
-//                     viewer.readyState === WebSocket.OPEN
-//                 ) {
-
-//                     viewer.send(data);
-
-//                 }
-
-//             }
-
-//         });
-
-//         socket.on("close", () => {
-
-//             console.log(
-//                 "Python disconnected"
-//             );
-
-//             recorder.stop();
-
-//             if (pythonSocket === socket) {
-
-//                 pythonSocket = null;
-
-//             }
-
-//         });
-
-//         socket.on("error", (error) => {
-
-//             console.error(
-//                 "Python WebSocket error:",
-//                 error
-//             );
-
-//         });
-
-//         return;
-//     }
-
-//     if (pathname === "/viewer") {
-//         console.log(
-//             "Browser connected"
-//         );
-
-//         viewers.add(socket);
-//         console.log(
-//             "Number of viewers:",
-//             viewers.size
-//         );
-
-//         socket.on("close", () => {
-
-//             console.log(
-//                 "Browser disconnected"
-//             );
-
-//             viewers.delete(socket);
-
-//         });
-
-//         socket.on("error", (error) => {
-
-//             console.error(
-//                 "Browser WebSocket error:",
-//                 error
-//             );
-
-//             viewers.delete(socket);
-
-//         });
-
-//         return;
-//     }
-
-//     console.log(
-//         "Unknown WebSocket path:",
-//         pathname
-//     );
-
-//     socket.close();
-
-// });

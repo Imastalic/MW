@@ -1,6 +1,5 @@
 import keyboard
 import os
-ws
 from pathlib import Path
 import time
 import threading
@@ -20,7 +19,8 @@ for i in range(5):
 
 now = time.perf_counter()
 PORT = 8000
-IP = "192.168.1.139"
+IP = "162.35.28.211"
+# IP = "192.168.1.139"
 
 
 
@@ -48,7 +48,7 @@ def on_json_text(event):
     print(data)
 
 # SERVER = f"ws://{IP}:{PORT}/screen"
-SERVER = f"ws://{IP}:{PORT}/screen?id={id}"
+SERVER = f"ws://{IP}:{PORT}/screen?id={id}&name={name}"
 
 FPS = 20
 JPEG_QUALITY = 80
